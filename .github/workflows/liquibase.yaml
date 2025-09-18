@@ -1,0 +1,40 @@
+name: Test Liquibase Installation and Database Connection
+
+on:
+  # push:
+  #   branches: [ main, develop ]
+  # pull_request:
+  #   branches: [ main, develop ]
+  workflow_dispatch: # Allows manual triggering
+
+env:
+  LIQUIBASE_VERSION: 4.27.0
+  DATABASE_URL: jdbc:postgresql://localhost:5432/testdb
+  DATABASE_USER: testuser
+  DATABASE_PASSWORD: testpassword
+
+jobs:
+  test-liquibase:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Download and install Liquibase
+        run: |
+          curl -L https://github.com/liquibase/liquibase/releases/download/v$LIQUIBASE_VERSION/liquibase-$LIQUIBASE_VERSION.tar.gz -o liquibase.tar.gz
+          mkdir liquibase
+          tar -xzf liquibase.tar.gz -C liquibase
+          echo "$(pwd)/liquibase" >> $GITHUB_PATH
+
+      - name: Verify Liquibase installation
+        run: |
+          liquibase --version
+          which liquibase
